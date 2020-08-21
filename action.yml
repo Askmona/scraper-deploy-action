@@ -1,0 +1,30 @@
+name: 'Deploy scraper action'
+description: 'Create fargate scheduled task based on scraper enabled'
+inputs:
+  aws-cloudwatch-access-key-id:
+    description: 'AWS access key with the right permissions'
+    required: true
+  aws-cloudwatch-secret-access-key:
+    description: 'AWS secrets of the access key'
+    required: true
+  aws-region:
+    description: 'Aws region'
+    required: true
+  aws-target-arn:
+    description: 'Arn of the cloudwatch target'
+    required: true
+  aws-ecs-role-arn:
+    description: 'Arn of the ecs execution role'
+    required: true
+  aws-task-definition-arn:
+    description: 'Arn of the ecs task definition'
+    required: true
+  aws-subnet:
+    description: 'Subnet in which the target will be deloyed'
+    required: true
+  aws-security-group:
+    description: 'Security group of the target'
+    required: true
+runs:
+  using: 'node12'
+  main: 'index.js'
