@@ -4,6 +4,7 @@ const fs = require("fs");
 
 (async () => {
   try {
+    console.info("debug mode");
 
     AWS.config.update({
       accessKeyId: core.getInput('aws-cloudwatch-access-key-id'),
@@ -29,6 +30,8 @@ const fs = require("fs");
       let file = fileList[f];
 
       let match = existingRules.Rules.find(e => e.Name == file.split(".")[0]);
+      console.log("current:");
+      console.log(file.split(".")[0]);
       if (!match) {
         await createCloudwatchEvents(cloudwatchevents, file.split(".")[0])
       } else if(match && match.State == "DISABLED") {
@@ -40,6 +43,8 @@ const fs = require("fs");
       let file = fileListOld[f];
 
       let match = existingRules.Rules.find(e => e.Name == file.split(".")[0]);
+      console.log("old:");
+      console.log(file.split(".")[0]);
       if (match) {
         await disableCloudwatchEvents(cloudwatchevents, file.split(".")[0])
       }
@@ -49,6 +54,8 @@ const fs = require("fs");
       let file = fileListPending[f];
 
       let match = existingRules.Rules.find(e => e.Name == file.split(".")[0]);
+      console.log("pending:");
+      console.log(file.split(".")[0]);
       if (match) {
         await disableCloudwatchEvents(cloudwatchevents, file.split(".")[0])
       }
@@ -62,6 +69,8 @@ const fs = require("fs");
 let createCloudwatchEvents = async (cloudwatchevents, bot_id) => {
   let hour = Math.floor(Math.random() * (7 - 1) + 1)
   let minutes = Math.floor(Math.random() * (59 - 1) + 1)
+
+  console.log(`create event for ${bot_id}`);
 
   await cloudwatchevents.putRule({
     Name: bot_id,
@@ -105,6 +114,8 @@ let createCloudwatchEvents = async (cloudwatchevents, bot_id) => {
 
 let disableCloudwatchEvents = async (cloudwatchevents, bot_id) => {
 
+  console.log(`disable event for ${bot_id}`);
+
   await cloudwatchevents.putRule({
     Name: bot_id,
     State: "DISABLED"
@@ -115,6 +126,8 @@ let disableCloudwatchEvents = async (cloudwatchevents, bot_id) => {
 }
 
 let enableCloudwatchEvents = async (cloudwatchevents, bot_id) => {
+
+  console.log(`enable event for ${bot_id}`);
 
   await cloudwatchevents.putRule({
     Name: bot_id,
