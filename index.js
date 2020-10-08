@@ -26,6 +26,13 @@ const fs = require("fs");
       core.setFailed(error.message);
     }
 
+    console.log("fileList:");
+    console.log(fileList);
+    console.log("fileListOld");
+    console.log(fileListOld);
+    console.log("fileListPending");
+    console.log(fileListPending);
+
     for (let f in fileList) {
       let file = fileList[f];
 
