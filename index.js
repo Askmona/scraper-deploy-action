@@ -4,8 +4,6 @@ const fs = require("fs");
 
 (async () => {
   try {
-    console.info("debug mode");
-
     AWS.config.update({
       accessKeyId: core.getInput('aws-cloudwatch-access-key-id'),
       secretAccessKey: core.getInput('aws-cloudwatch-secret-access-key'),
@@ -26,45 +24,35 @@ const fs = require("fs");
       core.setFailed(error.message);
     }
 
-    console.log("fileList:");
-    console.log(fileList);
-    console.log("fileListOld");
-    console.log(fileListOld);
-    console.log("fileListPending");
-    console.log(fileListPending);
-
     for (let f in fileList) {
-      let file = fileList[f];
+      const file = fileList[f];
+      const botId = file.split(".")[0]
 
-      let match = existingRules.Rules.find(e => e.Name == file.split(".")[0]);
-      console.log("current:");
-      console.log(file.split(".")[0]);
+      let match = existingRules.Rules.find(e => e.Name == botId);
       if (!match) {
-        await createCloudwatchEvents(cloudwatchevents, file.split(".")[0])
+        await createCloudwatchEvents(cloudwatchevents, botId)
       } else if(match && match.State == "DISABLED") {
-        await enableCloudwatchEvents(cloudwatchevents, file.split(".")[0])
+        await enableCloudwatchEvents(cloudwatchevents, botId)
       }
     }
 
     for (let f in fileListOld) {
-      let file = fileListOld[f];
+      const file = fileListOld[f];
+      const botId = file.split(".")[0]
 
-      let match = existingRules.Rules.find(e => e.Name == file.split(".")[0]);
-      console.log("old:");
-      console.log(file.split(".")[0]);
+      let match = existingRules.Rules.find(e => e.Name == botId);
       if (match) {
-        await disableCloudwatchEvents(cloudwatchevents, file.split(".")[0])
+        await disableCloudwatchEvents(cloudwatchevents, botId)
       }
     }
 
     for (let f in fileListPending) {
-      let file = fileListPending[f];
+      const file = fileListPending[f];
+      const botId = file.split(".")[0]
 
-      let match = existingRules.Rules.find(e => e.Name == file.split(".")[0]);
-      console.log("pending:");
-      console.log(file.split(".")[0]);
+      let match = existingRules.Rules.find(e => e.Name == botId);
       if (match) {
-        await disableCloudwatchEvents(cloudwatchevents, file.split(".")[0])
+        await disableCloudwatchEvents(cloudwatchevents, botId)
       }
     }
   } catch (error) {
@@ -76,8 +64,6 @@ const fs = require("fs");
 let createCloudwatchEvents = async (cloudwatchevents, bot_id) => {
   let hour = Math.floor(Math.random() * (7 - 1) + 1)
   let minutes = Math.floor(Math.random() * (59 - 1) + 1)
-
-  console.log(`create event for ${bot_id}`);
 
   await cloudwatchevents.putRule({
     Name: bot_id,
@@ -115,32 +101,28 @@ let createCloudwatchEvents = async (cloudwatchevents, bot_id) => {
     }]
   }).promise()
 
-  console.log(`Creating scheduled task ${bot_id}`);
+  console.info(`Creating scheduled task ${bot_id}...`);
 
 }
 
 let disableCloudwatchEvents = async (cloudwatchevents, bot_id) => {
-
-  console.log(`disable event for ${bot_id}`);
 
   await cloudwatchevents.putRule({
     Name: bot_id,
     State: "DISABLED"
   }).promise()
 
-  console.log(`Disabling scheduled task ${bot_id}...`);
+  console.info(`Disabling scheduled task ${bot_id}...`);
 
 }
 
 let enableCloudwatchEvents = async (cloudwatchevents, bot_id) => {
-
-  console.log(`enable event for ${bot_id}`);
 
   await cloudwatchevents.putRule({
     Name: bot_id,
     State: "ENABLED"
   }).promise()
 
-  console.log(`Enabling scheduled task ${bot_id}...`);
+  console.info(`Enabling scheduled task ${bot_id}...`);
 
 }
